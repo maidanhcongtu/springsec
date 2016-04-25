@@ -1,0 +1,50 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.springframework.org/schema/security 
+	http://www.springframework.org/schema/security/spring-security.xsd">
+
+<!-- 	<security:http auto-config="true"> -->
+<!-- 		<security:intercept-url pattern="/public/**" -->
+<!-- 			access="isFullyAuthenticated()" /> -->
+<!-- 		<security:intercept-url pattern="/user/**" access="hasRole('ROLE_USER')" /> -->
+<!-- 	</security:http> -->
+
+	<!-- myUserDetailsService is a custom implementation of Spring Security's 
+		UserDetailsService -->
+	<security:authentication-manager>
+		<security:authentication-provider
+			user-service-ref="myUserDetailsService">
+			<security:password-encoder hash="plaintext">
+			</security:password-encoder>
+		</security:authentication-provider>
+	</security:authentication-manager>
+	
+	<bean id="myUserDetailsService" class="com.mhdanh.springsec.auth.MyUserDetailsServiceImpl"></bean>
+
+	<security:http entry-point-ref="restAuthenticationEntryPoint" 
+			auto-config="false" create-session="stateless">
+		<security:custom-filter ref="authenticationTokenProcessingFilter"
+			position="FORM_LOGIN_FILTER" />
+		<security:intercept-url pattern="/api/admin-say"
+			access="hasRole('ROLE_USER')" />
+		<security:logout />
+		<security:csrf disabled="true"/>
+	</security:http>
+	
+	<bean id="restAuthenticationEntryPoint" class="com.mhdanh.springsec.auth.RestAuthenticationEntryPoint"></bean>
+	<bean id="authenticationTokenProcessingFilter" class="com.mhdanh.springsec.auth.TokenAuthenticationFilter">
+	</bean>
+		
+	
+
+<!-- 	<bean class="com.javabydefault.web.filter.TokenAuthenticationFilter" -->
+<!-- 		id="authenticationTokenProcessingFilter"> -->
+<!-- 		<constructor-arg type="java.lang.String"> -->
+<!-- 			<value>/api/**</value> -->
+<!-- 		</constructor-arg> -->
+<!-- 	</bean> -->
+	
+</beans>    
